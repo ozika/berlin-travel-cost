@@ -1,4 +1,2 @@
 groo-ozika==0.0.4
-pipenv==2022.6.7
-streamlit
 
