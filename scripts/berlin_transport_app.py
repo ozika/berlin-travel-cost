@@ -65,7 +65,7 @@ if "Miles" in options:
 
         id = ((df_miles["duration_min"]>estdur) & (df_miles["distance"]>distance) & (df_miles["cost"]<miles_cost))
         if sum(id)>0:
-            st.text("You can save money with the following MILES packages:")
+            st.markdown("You can save money with the following MILES packages:")
             st.dataframe(df_miles.loc[id,:])
 
 if "ShareNow" in options:
@@ -86,7 +86,7 @@ if "ShareNow" in options:
         df_sn_2 = df_sn.loc[:,["duration_min"]+[sharenow_car]]
         id = ((df_sn_2["duration_min"]>estdur) & ( (df_sn_2[sharenow_car] + sharenow_deals_km_price*distance) < sharenow_cost))
         if sum(id)>0:
-            st.text("You can save money with the following ShareNow packages:")
+            st.markdown("You can save money with the following ShareNow packages:")
             st.dataframe(df_sn.loc[id,["duration"]+[sharenow_car]+["Total cost (with km)"]])
 
 
