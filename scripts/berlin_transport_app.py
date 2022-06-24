@@ -51,7 +51,7 @@ donate_string = '''<a href="https://www.paypal.com/donate/?hosted_button_id=3X5C
 if "Miles" in options:
 
     st.sidebar.markdown("**Miles**")
-    miles_kmrate = st.sidebar.number_input("Rate per km (in EUR)", value=0.89, step=0.01, help="For example: 0.89")
+    miles_kmrate = st.sidebar.number_input("Rate per km (in EUR)", value=0.00, step=0.01, help="For example: 0.89")
 
 
 
