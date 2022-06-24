@@ -31,7 +31,7 @@ elif unit == "day":
 st.sidebar.markdown("**2. Select companies you want to compare**")
 options = st.sidebar.multiselect(
      'Select:',
-     ['Miles', 'ShareNow'])
+     ['MILES', 'SHARENOW'])
 
 
 #st.text(os.path.join(root_folder, "rates", "miles.csv"))
