@@ -60,8 +60,8 @@ if "Miles" in options:
     can_refuel_miles = st.sidebar.checkbox("Will refuel Miles (5 EUR cashback)", value=False)
     if miles_kmrate != 0.0:
         miles_cost = miles_kmrate*distance + miles_unlockfee + can_refuel_miles*(-5) + parking*miles_parking_rate
-        st.markdown("**Miles cost:** "+str(miles_cost))
-        st.markdown("Breakdown: "+str(miles_kmrate)+"EUR/km * "+str(distance) +"km + "+str(miles_unlockfee)+" (unlock fee) "+str(can_refuel_miles*(-5))  + " (refuel) + "+str(miles_parking_rate) + "EUR/min * "+str(parking)+" (parking)"  )
+        st.markdown("**MILES cost:** "+str(miles_cost))
+        st.markdown("Breakdown: "+str(miles_kmrate)+"EUR/km * "+str(distance) +"km + "+str(miles_unlockfee)+" (unlock fee) - "+str(can_refuel_miles*(5))  + " (refuel) + "+str(miles_parking_rate) + "EUR/min * "+str(parking)+" (parking)"  )
 
         id = ((df_miles["duration_min"]>estdur) & (df_miles["distance"]>distance) & (df_miles["cost"]<miles_cost))
         if sum(id)>0:
@@ -81,8 +81,8 @@ if "ShareNow" in options:
     can_refuel_sharenow = st.sidebar.checkbox("Will refuel Sharenow (5 EUR cashback)", value=False)
     if sharenow_minrate != 0.00:
         sharenow_cost = sharenow_minrate*estdur + can_refuel_sharenow*(-5)
-        st.markdown("**Sharenow cost:** "+str(sharenow_cost))
-        st.markdown("Breakdown: "+str(sharenow_minrate)+"EUR/min * "+str(estdur)+" + " +str(can_refuel_sharenow*(-5))+"(refuel)" )
+        st.markdown("**SHARE NOW cost:** "+str(sharenow_cost))
+        st.markdown("Breakdown: "+str(sharenow_minrate)+"EUR/min * "+str(estdur)+" - " +str(can_refuel_sharenow*(5))+"(refuel)" )
         df_sn_2 = df_sn.loc[:,["duration_min"]+[sharenow_car]]
         id = ((df_sn_2["duration_min"]>estdur) & ( (df_sn_2[sharenow_car] + sharenow_deals_km_price*distance) < sharenow_cost))
         if sum(id)>0:
