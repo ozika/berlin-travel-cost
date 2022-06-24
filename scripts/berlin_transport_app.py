@@ -40,8 +40,8 @@ df_miles["duration_min"] = df_miles["duration"] * 60
 df_sn = pd.read_csv(os.path.join(root_folder, "rates", "sharenow.csv"))
 df_sn["duration_min"] = df_sn["duration hrs"] * 60
 
-donate_string = '''<a href="https://www.paypal.com/donate/?hosted_button_id=3X5CKVFVU723L">Donate
-<img src="img/donate.png">
+donate_string = '''<a href="https://www.paypal.com/donate/?hosted_button_id=3X5CKVFVU723L">
+<img src="https://github.com/ozika/berlin-travel-cost/blob/main/img/donate.png?raw=true" width="60px">
 </a>
 '''
 
