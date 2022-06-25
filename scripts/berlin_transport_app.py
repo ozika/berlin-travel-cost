@@ -102,7 +102,7 @@ elif scope=="Extensive":
             id = ((df_miles["duration_min"]>estdur) & (df_miles["distance"]>distance) & (df_miles["cost"]<miles_cost))
             if sum(id)>0:
                 st.markdown("You can save money with the following MILES packages:")
-                st.dataframe(df_miles.loc[id,:])
+                st.dataframe(df_miles.loc[id,["Rental duration", "distance", "cost", "cartype"]])
 
     if ("SHARENOW" in options) & (distance != 0) & (estdur != 0):
         estdur = estdur + parking #in sharenow one pays for the entire time
