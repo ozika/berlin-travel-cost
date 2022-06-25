@@ -1,0 +1,3 @@
+"Rental duration","duration","cost","cartype","base_price","membership_price"
+"1 day",24,63,"ID.3",0.29,0.19
+"1 day ",24,73,"ID.4",0.34,0.24

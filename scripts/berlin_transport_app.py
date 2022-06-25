@@ -8,14 +8,17 @@ import os
 #dispval = False
 sharenow_deals_km_price = 0.19
 miles_parking_rate = 0.29
+weshare_parking_rate= 0.29
 
 df_miles = pd.read_csv(os.path.join(root_folder, "rates", "miles.csv"))
 df_miles["duration_min"] = df_miles["duration"] * 60
 df_sn = pd.read_csv(os.path.join(root_folder, "rates", "sharenow.csv"))
 df_sn["duration_min"] = df_sn["duration hrs"] * 60
+df_ws = pd.read_csv(os.path.join(root_folder, "rates", "weshare.csv"))
+df_ws["duration_min"] = df_ws["duration"] * 60
 
 st.header("Carsharing price calculator @ Berlin")
-st.markdown("This site compares mobility sharing companies (MILES, SHARE NOW) for better deal given your estimated distance, duration, parking etc. Enjoy! :heart:")
+st.markdown("This site compares mobility sharing companies (MILES, SHARE NOW, WESHARE) for better deal given your estimated distance, duration, parking etc. Enjoy! :heart:")
 #st.markdown("**Quick version**: You just need to type in distance and duration, all else is optional.")
 #st.markdown("**Extensive version**: Needs more input, but also checks for packages/deals specific to a given car type.")
 #st.markdown("---")
@@ -35,7 +38,7 @@ if scope=="Quick":
          st.sidebar.markdown("## 3. Select companies you want to compare")
          options = st.sidebar.multiselect(
               'You can specify the rates below if you need to.',
-              ['MILES', 'SHARENOW'], default=['MILES', 'SHARENOW'])
+              ['MILES', 'SHARENOW', 'WESHARE'], default=['MILES', 'SHARENOW', 'WESHARE'])
          if "MILES" in options:
              st.sidebar.markdown("### **Miles**")
              miles_kmrate = st.sidebar.number_input("Rate per km (in EUR)", value=0.89, step=0.01, help="For example: 0.89")
@@ -58,7 +61,24 @@ if scope=="Quick":
                  #st.markdown("**SHARE NOW cost:** "+str(sharenow_cost))
                  st.metric(label="", value="SHARE NOW: "+str(sharenow_cost)+" EUR")
                  st.markdown("Breakdown: "+str(sharenow_minrate)+" EUR/min * "+str(estdur)+" min - " +str(can_refuel_sharenow*(5))+" (refuel)" )
-                 st.markdown("> **NOTE:** *The `Quick` option doesn't check for packages/deals! Use the `Extensive` version for that.*")
+                 #st.markdown("> **NOTE:** *The `Quick` option doesn't check for packages/deals! Use the `Extensive` version for that.*")
+
+         if "WESHARE" in options:
+              s=1
+              st.sidebar.markdown("### **WeShare**")
+              weshare_unlockfee = 1
+              weshare_minrate = st.sidebar.number_input("Rate per minute (in EUR)\nInclude discount.", key="ws_minrate_1", value=0.29 ,step=0.01, help="For example: 0.29")
+              can_refuel_weshare = st.sidebar.checkbox("Will recharge WeShare (5 EUR cashback)", key="refuel1", value=False)
+              if (weshare_minrate != 0.00) & showresults:
+                  weshare_cost = round(weshare_minrate*estdur + parking*weshare_parking_rate + weshare_unlockfee + can_refuel_weshare*(-5),2)
+                  st.metric(label="", value="WESHARE: "+str(weshare_cost)+" EUR")
+                  st.markdown("Breakdown: "+str(weshare_minrate)+" EUR/min * "+str(estdur)+" min + "+str(weshare_parking_rate)+" EUR/min * "+str(parking)+" min (parking) + " +str(weshare_unlockfee)+" (unlock fee) - " +str(can_refuel_weshare*(5))+" (refuel)" )
+
+
+
+         st.markdown("> **NOTE:** *The `Quick` option doesn't check for packages/deals! Use the `Extensive` version for that.*")
+
+
 elif scope=="Extensive":
     st.sidebar.markdown("## 2. Type in distance, duration and parking time")
     st.sidebar.markdown("(google estimates will do)")
@@ -80,7 +100,7 @@ elif scope=="Extensive":
     st.sidebar.markdown("**2. Select companies you want to compare**")
     options = st.sidebar.multiselect(
          'Select:',
-         ['MILES', 'SHARENOW'], default=['MILES', 'SHARENOW'])
+         ['MILES', 'SHARENOW', 'WESHARE'], default=['MILES', 'SHARENOW', 'WESHARE'])
 
     if ("MILES" in options) & (distance != 0) & (estdur != 0):
         st.sidebar.markdown("### **Miles**")
@@ -124,6 +144,27 @@ elif scope=="Extensive":
             if sum(id)>0:
                 st.markdown("You can save money with the following ShareNow packages:")
                 st.dataframe(df_sn.loc[id,["duration"]+[sharenow_car]+["Total cost (with km)"]])
+
+    if ("WESHARE" in options) & (distance != 0) & (estdur != 0): # add paring!
+        s=1
+        st.sidebar.markdown("### **WeShare**")
+        weshare_unlockfee = 1
+        weshare_car = st.sidebar.selectbox("Car type", ["ID.3", "ID.4"])
+        weshare_member = st.sidebar.checkbox("I have WeSHARE membership", key="ws_memb_1", value=False)
+        if weshare_member:
+            weshare_parking_rate = 0.09
+            weshare_minrate = df_ws["membership_price"].loc[df_ws["cartype"].isin([weshare_car])].unique()[0] # t.sidebar.number_input("Rate per km (in EUR)", value=0.89, step=0.01, help="For example: 0.89")
+        else:
+            weshare_minrate = df_ws["base_price"].loc[df_ws["cartype"].isin([weshare_car])].unique()[0] # t.sidebar.number_input("Rate per km (in EUR)", value=0.89, step=0.01, help="For example: 0.89")
+        st.sidebar.markdown("Rate per min: **"+str(weshare_minrate)+"**")
+        #weshare_minrate = st.sidebar.number_input("Rate per minute (in EUR)\nInclude discount.", key="ws_minrate_1", value=0.29 ,step=0.01, help="For example: 0.29")
+        can_refuel_weshare = st.sidebar.checkbox("Will recharge WeShare (5 EUR cashback)", key="refuel1", value=False)
+
+
+        if (weshare_minrate != 0.00) & showresults:
+            weshare_cost = round(weshare_minrate*estdur + parking*weshare_parking_rate + weshare_unlockfee + can_refuel_weshare*(-5),2)
+            st.metric(label="", value="WESHARE: "+str(weshare_cost)+" EUR")
+            st.markdown("Breakdown: "+str(weshare_minrate)+" EUR/min * "+str(estdur)+" min + "+str(weshare_parking_rate)+" EUR/min * "+str(parking)+" min (parking) + " +str(weshare_unlockfee)+" (unlock fee) - " +str(can_refuel_weshare*(5))+" (refuel)" )
 
 donate_string = '''<a href="https://www.paypal.com/donate/?hosted_button_id=3X5CKVFVU723L">
 <img src="https://github.com/ozika/berlin-travel-cost/blob/main/img/donate.png?raw=true" width="60px">
