@@ -172,6 +172,13 @@ elif scope=="Extensive":
             st.metric(label="", value="WESHARE: "+str(weshare_cost)+" EUR")
             st.markdown("Breakdown: "+str(weshare_minrate)+" EUR/min * "+str(estdur)+" min + "+str(weshare_parking_rate)+" EUR/min * "+str(parking)+" min (parking) + " +str(weshare_unlockfee)+" (unlock fee) - " +str(can_refuel_weshare*(5))+" (refuel)" )
 
+            id = (weshare_cost > df_ws["cost"]) & (df_ws["cartype"].isin([weshare_car])) & (distance<df_ws["distance"]) & (estdur<df_ws["duration_min"])
+            if sum(id)>0:
+                st.markdown("You can save money with the following WeSHARE packages:")
+                st.dataframe(df_ws.loc[id,["Rental duration", "distance", "cartype", "cost"]])
+
+
+
 donate_string = '''<a href="https://www.paypal.com/donate/?hosted_button_id=3X5CKVFVU723L">
 <img src="https://github.com/ozika/berlin-travel-cost/blob/main/img/donate.png?raw=true" width="60px">
 </a>
