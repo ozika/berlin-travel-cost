@@ -129,10 +129,15 @@ elif scope=="Extensive":
             st.metric(label="", value="MILES: "+str(miles_cost)+" EUR")
             st.markdown("Breakdown: "+str(miles_kmrate)+" EUR/km * "+str(distance) +" km + "+str(miles_unlockfee)+" (unlock fee) - "+str(can_refuel_miles*(5))  + " (refuel) + "+str(miles_parking_rate) + " EUR/min * "+str(parking)+" (parking)"  )
 
-            id = ((df_miles["duration_min"]>estdur) & (df_miles["distance"]>distance) & (df_miles["cost"]<miles_cost))
+            df_miles.loc[:,"Total cost (with kms beyond package)"] = df_miles.loc[:,"cost"]
+            id = (distance-df_miles["distance"]) > 0
+            df_miles.loc[id,"Total cost (with kms beyond package)"] = df_miles.loc[:,"cost"] + miles_kmrate * (distance-df_miles.loc[id,"distance"] )
+
+
+            id = ((df_miles["duration_min"]>=estdur) & (df_miles.loc[:,"cartype"].isin([miles_car])) & (df_miles["Total cost (with kms beyond package)"]<miles_cost))
             if sum(id)>0:
                 st.markdown("You can save money with the following MILES packages:")
-                st.dataframe(df_miles.loc[id,["Rental duration", "distance", "cost", "cartype"]])
+                st.dataframe(df_miles.loc[id,["Rental duration", "distance", "cost", "Total cost (with kms beyond package)", "cartype"]])
 
     if ("SHARENOW" in options) & (distance != 0) & (estdur != 0):
         estdur = estdur + parking #in sharenow one pays for the entire time
