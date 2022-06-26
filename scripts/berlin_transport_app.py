@@ -13,6 +13,7 @@ import os
 sharenow_deals_km_price = 0.19
 miles_parking_rate = 0.29
 weshare_parking_rate= 0.29
+weshare_deals_km_price = 0.29
 
 df_miles = pd.read_csv(os.path.join(root_folder, "rates", "miles.csv"))
 df_miles["duration_min"] = df_miles["duration"] * 60
@@ -137,7 +138,7 @@ elif scope=="Extensive":
         sharenow_minrate = st.sidebar.number_input("Rate per minute (in EUR)\nInclude discount.", key="sn_minrate_2", value=0.26 ,step=0.01, help="For example: 0.29")
         sharenow_car = st.sidebar.selectbox("Car type", ["Fiat 500", "BMW 1 Series",	"Peugeot 308",	"Citroen C3",	"Fiat 500X",	"MINI Countryman",	"MINI 3-door",
                                                                      "MINI Convertable",	"MINI 5-door",	"MINI Clubman",	"Peugeot 208",	"Peugeot 3008",	"BMW Convertible",	"BMW Active Tourer",	"BMW X1",	"BMW X2"])
-        df_sn["Total cost (with km)"] = df_sn[sharenow_car] + sharenow_deals_km_price * distance
+        df_sn["Total cost (with km)"] = df_sn[sharenow_car] + sharenow_deals_km_price * distance # in case of sharenow it's ALL distance
         sharenow_unlockfee = 0
         can_refuel_sharenow = st.sidebar.checkbox("Will refuel Sharenow (5 EUR cashback)", value=False)
         if (sharenow_minrate != 0.00) & showresults:
@@ -172,10 +173,14 @@ elif scope=="Extensive":
             st.metric(label="", value="WESHARE: "+str(weshare_cost)+" EUR")
             st.markdown("Breakdown: "+str(weshare_minrate)+" EUR/min * "+str(estdur)+" min + "+str(weshare_parking_rate)+" EUR/min * "+str(parking)+" min (parking) + " +str(weshare_unlockfee)+" (unlock fee) - " +str(can_refuel_weshare*(5))+" (refuel)" )
 
-            id = (weshare_cost > df_ws["cost"]) & (df_ws["cartype"].isin([weshare_car])) & (distance<df_ws["distance"]) & (estdur<df_ws["duration_min"])
+            df_ws.loc[:,"Total cost (with km)"] = df_ws.loc[:,"cost"]
+            id = (distance-df_ws["distance"]) > 0
+            df_ws.loc[id,"Total cost (with km)"] = df_ws.loc[:,"cost"] + weshare_deals_km_price * (distance-df_ws.loc[id,"distance"] )
+
+            id = (weshare_cost > df_ws["Total cost (with km)"]) & (df_ws["cartype"].isin([weshare_car])) & (estdur<df_ws["duration_min"])
             if sum(id)>0:
                 st.markdown("You can save money with the following WeSHARE packages:")
-                st.dataframe(df_ws.loc[id,["Rental duration", "distance", "cartype", "cost"]])
+                st.dataframe(df_ws.loc[id,["Rental duration", "distance", "cartype", "cost", "Total cost (with km)"]])
 
 
 
