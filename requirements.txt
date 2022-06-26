@@ -1,5 +1,4 @@
 groo-ozika==0.0.4
 pandas
 bs4
-logging
 shutil
