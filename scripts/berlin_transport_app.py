@@ -14,6 +14,7 @@ sharenow_deals_km_price = 0.19
 miles_parking_rate = 0.29
 weshare_parking_rate= 0.29
 weshare_deals_km_price = 0.29
+idle_time = 2 #all by/minute car rentals are added two minutes
 
 df_miles = pd.read_csv(os.path.join(root_folder, "rates", "miles.csv"))
 df_miles["duration_min"] = df_miles["duration"] * 60
@@ -64,11 +65,12 @@ if scope=="Quick":
              sharenow_unlockfee = 0
              can_refuel_sharenow = st.sidebar.checkbox("Will refuel Sharenow (5 EUR cashback)", key="refuelsn1", value=False)
              if (sharenow_minrate != 0.00) & showresults:
-                 sharenow_cost = round(sharenow_minrate*estdur + can_refuel_sharenow*(-5),2)
+                 sharenow_cost = round(sharenow_minrate*estdur + sharenow_minrate*idle_time + can_refuel_sharenow*(-5),2)
                  #st.markdown("**SHARE NOW cost:** "+str(sharenow_cost))
                  st.metric(label="", value="SHARE NOW: "+str(sharenow_cost)+" EUR")
-                 st.markdown("Breakdown: "+str(sharenow_minrate)+" EUR/min * "+str(estdur)+" min - " +str(can_refuel_sharenow*(5))+" (refuel)" )
+                 st.markdown("Breakdown: "+str(sharenow_minrate)+" EUR/min * "+str(estdur+idle_time)+" min (2 min added*) - " +str(can_refuel_sharenow*(5))+" (refuel)" )
                  #st.markdown("> **NOTE:** *The `Quick` option doesn't check for packages/deals! Use the `Extensive` version for that.*")
+
 
          if "WESHARE" in options:
               s=1
@@ -77,12 +79,13 @@ if scope=="Quick":
               weshare_minrate = st.sidebar.number_input("Rate per minute (in EUR)\nInclude discount.", key="ws_minrate_1", value=0.29 ,step=0.01, help="For example: 0.29")
               can_refuel_weshare = st.sidebar.checkbox("Will recharge WeShare (5 EUR cashback)", key="refuel1", value=False)
               if (weshare_minrate != 0.00) & showresults:
-                  weshare_cost = round(weshare_minrate*estdur + parking*weshare_parking_rate + weshare_unlockfee + can_refuel_weshare*(-5),2)
+                  weshare_cost = round(weshare_minrate*estdur + weshare_minrate*idle_time + parking*weshare_parking_rate + weshare_unlockfee + can_refuel_weshare*(-5),2)
                   st.metric(label="", value="WESHARE: "+str(weshare_cost)+" EUR")
-                  st.markdown("Breakdown: "+str(weshare_minrate)+" EUR/min * "+str(estdur)+" min + "+str(weshare_parking_rate)+" EUR/min * "+str(parking)+" min (parking) + " +str(weshare_unlockfee)+" (unlock fee) - " +str(can_refuel_weshare*(5))+" (refuel)" )
+                  st.markdown("Breakdown: "+str(weshare_minrate)+" EUR/min * "+str(estdur+idle_time)+" min (2 min added*) + "+str(weshare_parking_rate)+" EUR/min * "+str(parking)+" min (parking) + " +str(weshare_unlockfee)+" (unlock fee) - " +str(can_refuel_weshare*(5))+" (refuel)" )
 
 
 
+         st.markdown("*2 minutes are added to all car rentals paid by minute to account for time getting on/off and parking.")
          st.markdown("> **NOTE:** *The `Quick` option doesn't check for packages/deals! Use the `Extensive` version for that.*")
 
 
@@ -142,10 +145,10 @@ elif scope=="Extensive":
         sharenow_unlockfee = 0
         can_refuel_sharenow = st.sidebar.checkbox("Will refuel Sharenow (5 EUR cashback)", value=False)
         if (sharenow_minrate != 0.00) & showresults:
-            sharenow_cost = round(sharenow_minrate*estdur + can_refuel_sharenow*(-5),2)
+            sharenow_cost = round(sharenow_minrate*estdur+ sharenow_minrate*idle_time + can_refuel_sharenow*(-5),2)
             #st.markdown("**SHARE NOW cost:** "+str(sharenow_cost))
             st.metric(label="", value="SHARE NOW: "+str(sharenow_cost)+" EUR")
-            st.markdown("Breakdown: "+str(sharenow_minrate)+" EUR/min * "+str(estdur)+" min - " +str(can_refuel_sharenow*(5))+" (refuel)" )
+            st.markdown("Breakdown: "+str(sharenow_minrate)+" EUR/min * "+str(estdur+idle_time)+" min (2 min added*) - " +str(can_refuel_sharenow*(5))+" (refuel)" )
             df_sn_2 = df_sn.loc[:,["duration_min"]+[sharenow_car]]
             id = ((df_sn_2["duration_min"]>estdur) & ( (df_sn_2[sharenow_car] + sharenow_deals_km_price*distance) < sharenow_cost))
             if sum(id)>0:
@@ -169,9 +172,9 @@ elif scope=="Extensive":
 
 
         if (weshare_minrate != 0.00) & showresults:
-            weshare_cost = round(weshare_minrate*estdur + parking*weshare_parking_rate + weshare_unlockfee + can_refuel_weshare*(-5),2)
+            weshare_cost = round(weshare_minrate*estdur + weshare_minrate*idle_time + parking*weshare_parking_rate + weshare_unlockfee + can_refuel_weshare*(-5),2)
             st.metric(label="", value="WESHARE: "+str(weshare_cost)+" EUR")
-            st.markdown("Breakdown: "+str(weshare_minrate)+" EUR/min * "+str(estdur)+" min + "+str(weshare_parking_rate)+" EUR/min * "+str(parking)+" min (parking) + " +str(weshare_unlockfee)+" (unlock fee) - " +str(can_refuel_weshare*(5))+" (refuel)" )
+            st.markdown("Breakdown: "+str(weshare_minrate)+" EUR/min * "+str(estdur+idle_time)+" min (2 min added *) + "+str(weshare_parking_rate)+" EUR/min * "+str(parking)+" min (parking) + " +str(weshare_unlockfee)+" (unlock fee) - " +str(can_refuel_weshare*(5))+" (refuel)" )
 
             df_ws.loc[:,"Total cost (with km)"] = df_ws.loc[:,"cost"]
             id = (distance-df_ws["distance"]) > 0
@@ -181,7 +184,7 @@ elif scope=="Extensive":
             if sum(id)>0:
                 st.markdown("You can save money with the following WeSHARE packages:")
                 st.dataframe(df_ws.loc[id,["Rental duration", "distance", "cartype", "cost", "Total cost (with km)"]])
-
+    st.markdown("*2 minutes are added to all car rentals paid by minute to account for time getting on/off and parking.")
 
 
 donate_string = '''<a href="https://www.paypal.com/donate/?hosted_button_id=3X5CKVFVU723L">
