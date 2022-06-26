@@ -4,6 +4,10 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
+import pathlib
+from bs4 import BeautifulSoup
+import logging
+import shutil
 
 #dispval = False
 sharenow_deals_km_price = 0.19
@@ -16,6 +20,8 @@ df_sn = pd.read_csv(os.path.join(root_folder, "rates", "sharenow.csv"))
 df_sn["duration_min"] = df_sn["duration hrs"] * 60
 df_ws = pd.read_csv(os.path.join(root_folder, "rates", "weshare.csv"))
 df_ws["duration_min"] = df_ws["duration"] * 60
+
+
 
 st.header("Carsharing price calculator @ Berlin")
 st.markdown("This site compares mobility sharing companies (MILES, SHARE NOW, WESHARE) for better deal given your estimated distance, duration, parking etc. Enjoy! :heart:")
@@ -176,3 +182,36 @@ st.markdown("If this saved you some money, please tip me. I love working on this
 st.markdown(donate_string, unsafe_allow_html=True)
 #twitter_string = '''<a href="https://twitter.com/OndrejZika"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Twitter-logo.svg/2491px-Twitter-logo.svg.png" width="40px"></a>'''
 #st.markdown(twitter_string, unsafe_allow_html=True)
+
+
+
+def inject_ga():
+    GA_ID = "google_analytics"
+    GA_JS = """
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8RSB8MRRGF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-8RSB8MRRGF');
+    </script>
+    """
+
+    # Insert the script in the head tag of the static template inside your virtual
+    index_path = pathlib.Path(st.__file__).parent / "static" / "index.html"
+    logging.info(f'editing {index_path}')
+    soup = BeautifulSoup(index_path.read_text(), features="html.parser")
+    if not soup.find(id=GA_ID):  # if cannot find tag
+        bck_index = index_path.with_suffix('.bck')
+        if bck_index.exists():
+            shutil.copy(bck_index, index_path)  # recover from backup
+        else:
+            shutil.copy(index_path, bck_index)  # keep a backup
+        html = str(soup)
+        new_html = html.replace('<head>', '<head>\n' + GA_JS)
+        index_path.write_text(new_html)
+
+
+inject_ga()
