@@ -27,9 +27,6 @@ df_ws["duration_min"] = df_ws["duration"] * 60
 
 st.header("Carsharing price calculator @ Berlin")
 st.markdown("This site compares mobility sharing companies (MILES, SHARE NOW, WESHARE) for better deal given your estimated distance, duration, parking etc. Enjoy! :heart:")
-#st.markdown("**Quick version**: You just need to type in distance and duration, all else is optional.")
-#st.markdown("**Extensive version**: Needs more input, but also checks for packages/deals specific to a given car type.")
-#st.markdown("---")
 showresults = True#st.button("Show me!")
 
 st.sidebar.markdown("## 1. Choose comparison type")
@@ -73,7 +70,6 @@ if scope=="Quick":
 
 
          if "WESHARE" in options:
-              s=1
               st.sidebar.markdown("### **WeShare**")
               weshare_unlockfee = 1
               weshare_minrate = st.sidebar.number_input("Rate per minute (in EUR)\nInclude discount.", key="ws_minrate_1", value=0.29 ,step=0.01, help="For example: 0.29")
@@ -200,8 +196,7 @@ st.markdown("---")
 st.markdown('For improvements, suggestions and any errors you can [write me here](https://github.com/ozika/berlin-travel-cost/issues) (just click "open issue")')
 st.markdown("If this saved you some money, please tip me. I love working on this but it also takes some of my time (and a lot of B-lin coffee :coffee:) Berlin :heart:")
 st.markdown(donate_string, unsafe_allow_html=True)
-#twitter_string = '''<a href="https://twitter.com/OndrejZika"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Twitter-logo.svg/2491px-Twitter-logo.svg.png" width="40px"></a>'''
-#st.markdown(twitter_string, unsafe_allow_html=True)
+
 
 
 #inject_ga()
